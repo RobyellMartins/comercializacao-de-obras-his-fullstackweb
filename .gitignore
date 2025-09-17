@@ -1,0 +1,45 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environment variables
+.env
+.venv/
+env/
+venv/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Database
+*.db
+*.sqlite3
+
+# Uploads
+uploads/
+
+# Cache
+.cache/
+**/node_modules/.cache/
+obras-his-frontend/node_modules/.cache/
+
+# Ignorar dependências
+node_modules/
+**/node_modules/
+
+# Git repositories
+*.git/
+**/*.git/
+comercializacao-de-obras-his-fullstackweb.git/
+repo-mirror.git/
