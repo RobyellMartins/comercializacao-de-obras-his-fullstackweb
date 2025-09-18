@@ -7,6 +7,10 @@ import io
 os.environ['DATABASE_URL'] = 'sqlite:///test_upload_final.db'
 
 # Importar e testar a aplicação
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+
 from app import create_app
 
 def test_upload_final():
@@ -14,7 +18,7 @@ def test_upload_final():
     app = create_app()
     
     with app.test_client() as client:
-        print("🧪 TESTE FINAL - UPLOAD DE PLANILHA COMPLETO")
+        print(" TESTE FINAL - UPLOAD DE PLANILHA COMPLETO")
         print("=" * 60)
         
         # Criar planilha de teste com dados mais realistas
@@ -45,7 +49,7 @@ def test_upload_final():
             for j, valor in enumerate(linha, start=1):
                 ws.cell(row=i, column=j, value=valor)
         
-        print("📝 Planilha criada com:")
+        print(" Planilha criada com:")
         print("   - 2 empreendimentos diferentes")
         print("   - 5 unidades com dados realistas")
         print("   - Diferentes formas de pagamento")
@@ -56,7 +60,7 @@ def test_upload_final():
         wb.save(file_stream)
         file_stream.seek(0)
         
-        print("\n1. 📤 Fazendo Upload...")
+        print("\n1.  Fazendo Upload...")
         response = client.post('/empreendimentos/upload',
                              data={'file': (file_stream, 'teste_final.xlsx')},
                              content_type='multipart/form-data')
@@ -65,37 +69,37 @@ def test_upload_final():
         
         if response.status_code == 200:
             data = response.get_json()
-            print(f"   ✅ Empreendimentos processados: {data.get('empreendimentos_processados')}")
-            print(f"   ✅ Unidades processadas: {data.get('unidades_processadas')}")
-            print(f"   ✅ Erros: {data.get('erros')}")
+            print(f"    Empreendimentos processados: {data.get('empreendimentos_processados')}")
+            print(f"    Unidades processadas: {data.get('unidades_processadas')}")
+            print(f"    Erros: {data.get('erros')}")
             
             if data.get('detalhes_erros'):
-                print("   ❌ Detalhes dos erros:")
+                print("    Detalhes dos erros:")
                 for erro in data.get('detalhes_erros'):
                     print(f"      - {erro}")
             
             # Mostrar empreendimentos criados
             if data.get('empreendimentos'):
-                print("\n   📋 Empreendimentos criados:")
+                print("\n    Empreendimentos criados:")
                 for emp in data.get('empreendimentos'):
                     print(f"      - ID: {emp.get('id')} | {emp.get('nome')} | {emp.get('nome_empresa')}")
             
             # Mostrar unidades criadas
             if data.get('unidades'):
-                print("\n   🏠 Unidades criadas:")
+                print("\n    Unidades criadas:")
                 for unidade in data.get('unidades'):
                     print(f"      - Unidade {unidade.get('numero_unidade')} | {unidade.get('tamanho_m2')}m² | R$ {unidade.get('preco_venda'):,.2f} | {unidade.get('mecanismo_pagamento')}")
         else:
-            print(f"   ❌ Erro: {response.get_json()}")
+            print(f"    Erro: {response.get_json()}")
             return False
         
         # Teste 2: Verificar dados no banco
-        print("\n2. 🗄️ Verificando Dados no Banco...")
+        print("\n2.  Verificando Dados no Banco...")
         
         response = client.get('/empreendimentos')
         if response.status_code == 200:
             empreendimentos = response.get_json()
-            print(f"   📊 Total de empreendimentos: {len(empreendimentos)}")
+            print(f"    Total de empreendimentos: {len(empreendimentos)}")
             
             for emp in empreendimentos:
                 print(f"      - {emp.get('nome')} ({emp.get('nome_empresa')}) - CEP: {emp.get('cep')}")
@@ -103,15 +107,15 @@ def test_upload_final():
         response = client.get('/api/unidades')
         if response.status_code == 200:
             unidades = response.get_json()
-            print(f"   📊 Total de unidades: {len(unidades)}")
+            print(f"    Total de unidades: {len(unidades)}")
             
             # Verificar se o campo "outros" foi salvo corretamente
             for unidade in unidades:
                 if 'Parcelamento direto' in unidade.get('mecanismo_pagamento', ''):
-                    print(f"      ✅ Campo 'Outros' funcionando: Unidade {unidade.get('numero_unidade')} - {unidade.get('mecanismo_pagamento')}")
+                    print(f"       Campo 'Outros' funcionando: Unidade {unidade.get('numero_unidade')} - {unidade.get('mecanismo_pagamento')}")
         
         # Teste 3: Testar com planilha com erro
-        print("\n3. ❌ Testando Planilha com Erro...")
+        print("\n3.  Testando Planilha com Erro...")
         
         wb_erro = Workbook()
         ws_erro = wb_erro.active
@@ -142,21 +146,21 @@ def test_upload_final():
             print(f"   Erros encontrados: {data_erro.get('erros')}")
             
             if data_erro.get('detalhes_erros'):
-                print("   ✅ Erros detectados corretamente:")
+                print("    Erros detectados corretamente:")
                 for erro in data_erro.get('detalhes_erros'):
                     print(f"      - {erro}")
         
         print("\n" + "=" * 60)
-        print("🎉 TESTE FINAL CONCLUÍDO!")
+        print(" TESTE FINAL CONCLUÍDO!")
         
         # Resumo final
-        print("\n📊 RESUMO FINAL:")
-        print("✅ Upload de planilha funcionando corretamente")
-        print("✅ Processamento de múltiplos empreendimentos")
-        print("✅ Criação de unidades com dados completos")
-        print("✅ Campo 'outros' personalizado funcionando")
-        print("✅ Detecção e relatório de erros")
-        print("✅ Interface melhorada com detalhes dos dados criados")
+        print("\n RESUMO FINAL:")
+        print(" Upload de planilha funcionando corretamente")
+        print(" Processamento de múltiplos empreendimentos")
+        print(" Criação de unidades com dados completos")
+        print(" Campo 'outros' personalizado funcionando")
+        print(" Detecção e relatório de erros")
+        print(" Interface melhorada com detalhes dos dados criados")
         
         return True
 
@@ -164,9 +168,9 @@ if __name__ == '__main__':
     try:
         success = test_upload_final()
         if success:
-            print("\n🎯 UPLOAD DE PLANILHA TOTALMENTE FUNCIONAL!")
+            print("\n UPLOAD DE PLANILHA TOTALMENTE FUNCIONAL!")
         else:
-            print("\n❌ Problemas encontrados no upload")
+            print("\n Problemas encontrados no upload")
             sys.exit(1)
     except Exception as e:
         print(f"\nErro: {str(e)}")

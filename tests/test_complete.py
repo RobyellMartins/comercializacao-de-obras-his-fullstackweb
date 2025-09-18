@@ -8,6 +8,10 @@ from openpyxl import Workbook
 os.environ['DATABASE_URL'] = 'sqlite:///test_complete_obras_his.db'
 
 # Importar e testar a aplicação
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+
 from app import create_app
 
 def test_construtoras_endpoints():
@@ -15,7 +19,7 @@ def test_construtoras_endpoints():
     app = create_app()
     
     with app.test_client() as client:
-        print("🏢 Testando endpoints de construtoras...")
+        print(" Testando endpoints de construtoras...")
         
         # Teste 1: Listar construtoras
         print("\n1. Testando listagem de construtoras...")
@@ -56,7 +60,7 @@ def test_unidades_endpoints():
     app = create_app()
     
     with app.test_client() as client:
-        print("\n🏠 Testando endpoints de unidades...")
+        print("\n Testando endpoints de unidades...")
         
         # Primeiro criar um empreendimento para vincular as unidades
         print("\n1. Criando empreendimento para teste de unidades...")
@@ -116,7 +120,7 @@ def test_filtros_avancados():
     app = create_app()
     
     with app.test_client() as client:
-        print("\n🔍 Testando filtros avançados...")
+        print("\n Testando filtros avançados...")
         
         # Teste 1: Filtro somente publicadas
         print("\n1. Testando filtro 'somente_publicadas'...")
@@ -147,7 +151,7 @@ def test_cenarios_erro():
     app = create_app()
     
     with app.test_client() as client:
-        print("\n❌ Testando cenários de erro...")
+        print("\n Testando cenários de erro...")
         
         # Teste 1: Criar empreendimento sem dados obrigatórios
         print("\n1. Testando criação sem dados obrigatórios...")
@@ -183,7 +187,7 @@ def test_mecanismos_pagamento():
     app = create_app()
     
     with app.test_client() as client:
-        print("\n💳 Testando mecanismos de pagamento...")
+        print("\n Testando mecanismos de pagamento...")
         
         # Criar empreendimento para teste
         empreendimento_teste = {
@@ -222,9 +226,9 @@ def test_mecanismos_pagamento():
                                  content_type='application/json')
             print(f"   Status: {response.status_code}")
             if response.status_code in [200, 201]:
-                print(f"   ✅ Mecanismo '{mecanismo}' aceito")
+                print(f"    Mecanismo '{mecanismo}' aceito")
             else:
-                print(f"   ❌ Erro: {response.get_json()}")
+                print(f"    Erro: {response.get_json()}")
 
 def criar_planilha_com_caracteres_especiais():
     """Cria planilha com caracteres especiais para teste unicode"""
@@ -265,7 +269,7 @@ def test_unicode_processing():
     app = create_app()
     
     with app.test_client() as client:
-        print("\n🌐 Testando processamento Unicode...")
+        print("\n Testando processamento Unicode...")
         
         # Criar planilha com caracteres especiais
         planilha_unicode = criar_planilha_com_caracteres_especiais()
@@ -305,7 +309,7 @@ def test_unicode_processing():
 
 def run_complete_tests():
     """Executa todos os testes completos"""
-    print("🚀 Iniciando testes completos do Sistema Obras HIS...")
+    print(" Iniciando testes completos do Sistema Obras HIS...")
     
     try:
         # Testes de endpoints
@@ -324,10 +328,10 @@ def run_complete_tests():
         # Testes de unicode
         test_unicode_processing()
         
-        print("\n✅ Todos os testes completos foram executados!")
+        print("\n Todos os testes completos foram executados!")
         
     except Exception as e:
-        print(f"\n❌ Erro durante os testes: {str(e)}")
+        print(f"\n Erro durante os testes: {str(e)}")
         import traceback
         traceback.print_exc()
 

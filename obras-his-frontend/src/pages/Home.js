@@ -106,46 +106,39 @@ const Home = () => {
         </Box>
 
         {/* Cards de navegação */}
-        <Grid 
-          container 
-          spacing={3} 
-          justifyContent="center" 
-          alignItems="stretch"
-          sx={{ maxWidth: '1000px', mx: 'auto' }}
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'row',
+            gap: 3,
+            justifyContent: 'center',
+            alignItems: 'stretch',
+            flexWrap: 'nowrap',
+            maxWidth: '1000px',
+            mx: 'auto'
+          }}
         >
           {menuItems.map((item, index) => (
-            <Grid
-              item
-              xs={12}
-              sm={6}
-              md={3}
-              lg={3}
+            <Card
               key={index}
               sx={{
+                height: '280px',
+                width: '220px',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease-in-out',
                 display: 'flex',
-                justifyContent: 'center',
+                flexDirection: 'column',
+                '&:hover': {
+                  transform: 'translateY(-8px)',
+                  boxShadow: theme.shadows[8],
+                },
               }}
+              onClick={() => navigate(item.path)}
             >
-              <Card
-                sx={{
-                  height: '280px',
-                  width: '100%',
-                  maxWidth: '450px',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease-in-out',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  '&:hover': {
-                    transform: 'translateY(-8px)',
-                    boxShadow: theme.shadows[8],
-                  },
-                }}
-                onClick={() => navigate(item.path)}
-              >
                 <CardContent
                   sx={{
                     textAlign: 'center',
-                    p: 4,
+                    p: 3,
                     height: '100%',
                     display: 'flex',
                     flexDirection: 'column',
@@ -153,19 +146,19 @@ const Home = () => {
                   }}
                 >
                   {/* Seção do ícone */}
-                  <Box 
-                    sx={{ 
-                      height: '80px',
+                  <Box
+                    sx={{
+                      height: '60px',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      mb: 2,
+                      mb: 1,
                       color: item.color,
                     }}
                   >
-                    {item.icon}
+                    {React.cloneElement(item.icon, { sx: { fontSize: 30 } })}
                   </Box>
-                  
+
                   {/* Seção do conteúdo */}
                   <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                     <Typography
@@ -173,28 +166,29 @@ const Home = () => {
                       component="h3"
                       sx={{
                         fontWeight: 600,
-                        mb: 2,
+                        mb: 1,
                         color: theme.palette.text.primary,
-                        fontSize: '1.25rem',
+                        fontSize: '1rem',
                       }}
                     >
                       {item.title}
                     </Typography>
-                    
+
                     <Typography
                       variant="body1"
                       sx={{
                         color: theme.palette.text.secondary,
-                        lineHeight: 1.6,
-                        mb: 3,
+                        lineHeight: 1.4,
+                        mb: 2,
+                        fontSize: '0.8rem',
                       }}
                     >
                       {item.description}
                     </Typography>
                   </Box>
-                  
+
                   {/* Seção do botão */}
-                  <Box sx={{ mt: 2 }}>
+                  <Box sx={{ mt: 1 }}>
                     <Button
                       variant="contained"
                       fullWidth
@@ -204,8 +198,8 @@ const Home = () => {
                           backgroundColor: item.color,
                           filter: 'brightness(0.9)',
                         },
-                        py: 1.5,
-                        fontSize: '1rem',
+                        py: 1,
+                        fontSize: '0.8rem',
                         fontWeight: 600,
                       }}
                     >
@@ -214,9 +208,8 @@ const Home = () => {
                   </Box>
                 </CardContent>
               </Card>
-            </Grid>
           ))}
-        </Grid>
+        </Box>
 
         {/* Seção informativa */}
         <Paper

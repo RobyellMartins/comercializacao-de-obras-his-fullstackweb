@@ -7,6 +7,10 @@ from openpyxl import Workbook
 os.environ['DATABASE_URL'] = 'sqlite:///test_unicode_flexivel_obras_his.db'
 
 # Importar e testar a aplicação
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+
 from app import create_app
 
 def criar_planilha_unicode_variada():
@@ -114,10 +118,10 @@ def test_unicode_planilha_flexivel():
     app = create_app()
     
     with app.test_client() as client:
-        print("🌐 Testando processamento Unicode e flexibilidade de planilhas...")
+        print(" Testando processamento Unicode e flexibilidade de planilhas...")
         
         # Teste 1: Planilha com unicode complexo
-        print("\n1. 📊 Testando planilha com caracteres Unicode complexos...")
+        print("\n1.  Testando planilha com caracteres Unicode complexos...")
         planilha_unicode = criar_planilha_unicode_variada()
         
         response = client.post('/empreendimentos/upload/preview',
@@ -127,31 +131,31 @@ def test_unicode_planilha_flexivel():
         print(f"   Status: {response.status_code}")
         if response.status_code == 200:
             preview_data = response.get_json()
-            print(f"   ✅ Preview válido: {preview_data.get('valido')}")
-            print(f"   ✅ Empreendimentos encontrados: {preview_data.get('empreendimentos_encontrados')}")
-            print(f"   ✅ Erros: {preview_data.get('erros')}")
+            print(f"    Preview válido: {preview_data.get('valido')}")
+            print(f"    Empreendimentos encontrados: {preview_data.get('empreendimentos_encontrados')}")
+            print(f"    Erros: {preview_data.get('erros')}")
             
             if preview_data.get('detalhes_erros'):
-                print("   ⚠️ Detalhes dos erros:")
+                print("    Detalhes dos erros:")
                 for erro in preview_data.get('detalhes_erros', []):
                     print(f"     - {erro}")
             
             # Verificar processamento unicode
             empreendimentos = preview_data.get('empreendimentos', [])
-            print("\n   📋 Dados processados com Unicode:")
+            print("\n    Dados processados com Unicode:")
             for emp in empreendimentos:
-                print(f"     🏢 Nome: {emp.get('nome')}")
-                print(f"     🏗️ Empresa: {emp.get('nome_empresa')}")
-                print(f"     📍 CEP: {emp.get('cep')}")
-                print(f"     🏠 Endereço: {emp.get('endereco')}")
-                print(f"     📝 Observação: {emp.get('observacao')}")
+                print(f"      Nome: {emp.get('nome')}")
+                print(f"      Empresa: {emp.get('nome_empresa')}")
+                print(f"      CEP: {emp.get('cep')}")
+                print(f"      Endereço: {emp.get('endereco')}")
+                print(f"      Observação: {emp.get('observacao')}")
                 print("     ---")
         else:
-            print(f"   ❌ Erro: {response.get_json()}")
+            print(f"    Erro: {response.get_json()}")
             return False
         
         # Teste 2: Planilha com formato completamente diferente
-        print("\n2. 🔄 Testando planilha com formato diferente...")
+        print("\n2.  Testando planilha com formato diferente...")
         planilha_diferente = criar_planilha_formato_diferente()
         
         response = client.post('/empreendimentos/upload/preview',
@@ -161,29 +165,29 @@ def test_unicode_planilha_flexivel():
         print(f"   Status: {response.status_code}")
         if response.status_code == 200:
             preview_data = response.get_json()
-            print(f"   ✅ Preview válido: {preview_data.get('valido')}")
-            print(f"   ✅ Empreendimentos encontrados: {preview_data.get('empreendimentos_encontrados')}")
-            print(f"   ✅ Unidades encontradas: {preview_data.get('unidades_encontradas')}")
-            print(f"   ✅ Erros: {preview_data.get('erros')}")
+            print(f"    Preview válido: {preview_data.get('valido')}")
+            print(f"    Empreendimentos encontrados: {preview_data.get('empreendimentos_encontrados')}")
+            print(f"    Unidades encontradas: {preview_data.get('unidades_encontradas')}")
+            print(f"    Erros: {preview_data.get('erros')}")
             
             # Verificar dados processados
             empreendimentos = preview_data.get('empreendimentos', [])
             unidades = preview_data.get('unidades', [])
             
-            print("\n   📋 Empreendimentos processados:")
+            print("\n    Empreendimentos processados:")
             for emp in empreendimentos:
-                print(f"     🏢 {emp.get('nome')} - {emp.get('nome_empresa')}")
-                print(f"     📍 CEP: {emp.get('cep')} - Endereço: {emp.get('endereco')}")
+                print(f"      {emp.get('nome')} - {emp.get('nome_empresa')}")
+                print(f"      CEP: {emp.get('cep')} - Endereço: {emp.get('endereco')}")
             
-            print("\n   🏠 Unidades processadas:")
+            print("\n    Unidades processadas:")
             for unidade in unidades:
-                print(f"     🏠 Unidade {unidade.get('numero_unidade')} - {unidade.get('tamanho_m2')}m² - R$ {unidade.get('preco_venda')} - {unidade.get('mecanismo_pagamento')}")
+                print(f"      Unidade {unidade.get('numero_unidade')} - {unidade.get('tamanho_m2')}m² - R$ {unidade.get('preco_venda')} - {unidade.get('mecanismo_pagamento')}")
         else:
-            print(f"   ❌ Erro: {response.get_json()}")
+            print(f"    Erro: {response.get_json()}")
             return False
         
         # Teste 3: Upload real com processamento completo
-        print("\n3. 📤 Testando upload completo com processamento Unicode...")
+        print("\n3.  Testando upload completo com processamento Unicode...")
         planilha_unicode = criar_planilha_unicode_variada()
         
         response = client.post('/empreendimentos/upload',
@@ -193,27 +197,27 @@ def test_unicode_planilha_flexivel():
         print(f"   Status: {response.status_code}")
         if response.status_code == 200:
             upload_data = response.get_json()
-            print(f"   ✅ Empreendimentos processados: {upload_data.get('empreendimentos_processados')}")
-            print(f"   ✅ Unidades processadas: {upload_data.get('unidades_processadas')}")
-            print(f"   ✅ Erros: {upload_data.get('erros')}")
+            print(f"    Empreendimentos processados: {upload_data.get('empreendimentos_processados')}")
+            print(f"    Unidades processadas: {upload_data.get('unidades_processadas')}")
+            print(f"    Erros: {upload_data.get('erros')}")
             
             # Verificar se dados foram salvos corretamente
             response_list = client.get('/empreendimentos')
             if response_list.status_code == 200:
                 empreendimentos_salvos = response_list.get_json()
-                print(f"   ✅ Total de empreendimentos no banco: {len(empreendimentos_salvos)}")
+                print(f"    Total de empreendimentos no banco: {len(empreendimentos_salvos)}")
                 
                 # Verificar unicode nos dados salvos
                 for emp in empreendimentos_salvos[-4:]:  # Últimos 4 (os que acabamos de criar)
                     if emp.get('nome') and 'São José' in emp.get('nome', ''):
-                        print(f"   🌐 Unicode preservado: {emp.get('nome')} - {emp.get('nome_empresa')}")
-                        print(f"   🌐 Observação: {emp.get('observacao')}")
+                        print(f"    Unicode preservado: {emp.get('nome')} - {emp.get('nome_empresa')}")
+                        print(f"    Observação: {emp.get('observacao')}")
         else:
-            print(f"   ❌ Erro no upload: {response.get_json()}")
+            print(f"    Erro no upload: {response.get_json()}")
             return False
         
         # Teste 4: Verificar normalização Unicode
-        print("\n4. 🔤 Testando normalização Unicode...")
+        print("\n4.  Testando normalização Unicode...")
         
         # Criar dados com diferentes formas de unicode (NFC vs NFD)
         dados_teste = {
@@ -227,28 +231,28 @@ def test_unicode_planilha_flexivel():
         response = client.post('/empreendimentos', json=dados_teste)
         if response.status_code == 201:
             emp_criado = response.get_json()
-            print(f"   ✅ Empreendimento Unicode criado: {emp_criado.get('nome')}")
-            print(f"   ✅ Observação normalizada: {emp_criado.get('observacao')}")
+            print(f"    Empreendimento Unicode criado: {emp_criado.get('nome')}")
+            print(f"    Observação normalizada: {emp_criado.get('observacao')}")
         else:
-            print(f"   ❌ Erro ao criar empreendimento Unicode: {response.get_json()}")
+            print(f"    Erro ao criar empreendimento Unicode: {response.get_json()}")
             return False
         
-        print("\n🎉 TODOS OS TESTES DE UNICODE E FLEXIBILIDADE PASSARAM!")
-        print("\n📊 RESUMO DOS TESTES:")
-        print("✅ Processamento de caracteres Unicode complexos")
-        print("✅ Extração de CEP de diferentes formatos")
-        print("✅ Mapeamento flexível de colunas")
-        print("✅ Normalização Unicode (NFC)")
-        print("✅ Preservação de acentos e símbolos")
-        print("✅ Funcionamento independente do modelo da planilha")
-        print("✅ Upload e salvamento com Unicode")
+        print("\n TODOS OS TESTES DE UNICODE E FLEXIBILIDADE PASSARAM!")
+        print("\n RESUMO DOS TESTES:")
+        print(" Processamento de caracteres Unicode complexos")
+        print(" Extração de CEP de diferentes formatos")
+        print(" Mapeamento flexível de colunas")
+        print(" Normalização Unicode (NFC)")
+        print(" Preservação de acentos e símbolos")
+        print(" Funcionamento independente do modelo da planilha")
+        print(" Upload e salvamento com Unicode")
         
         return True
 
 if __name__ == '__main__':
     success = test_unicode_planilha_flexivel()
     if success:
-        print("\n🌐 SISTEMA VALIDADO: Unicode e flexibilidade de planilha funcionando perfeitamente!")
+        print("\n SISTEMA VALIDADO: Unicode e flexibilidade de planilha funcionando perfeitamente!")
     else:
-        print("\n❌ Alguns testes falharam")
+        print("\n Alguns testes falharam")
         sys.exit(1)

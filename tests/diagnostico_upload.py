@@ -42,27 +42,27 @@ def criar_planilha_teste():
 
 def testar_conexao_servidor():
     """Testa se o servidor está respondendo"""
-    print("🔍 Testando conexão com o servidor...")
+    print(" Testando conexão com o servidor...")
 
     try:
         # Testar endpoint de saúde
         response = requests.get("http://localhost:5000/health", timeout=10)
         if response.status_code == 200:
-            print("✅ Servidor está respondendo")
+            print(" Servidor está respondendo")
             return True
         else:
-            print(f"❌ Servidor respondeu com status {response.status_code}")
+            print(f" Servidor respondeu com status {response.status_code}")
             return False
     except requests.exceptions.ConnectionError:
-        print("❌ Não foi possível conectar ao servidor (servidor pode não estar rodando)")
+        print(" Não foi possível conectar ao servidor (servidor pode não estar rodando)")
         return False
     except Exception as e:
-        print(f"❌ Erro ao conectar: {str(e)}")
+        print(f" Erro ao conectar: {str(e)}")
         return False
 
 def testar_endpoint_upload():
     """Testa o endpoint de upload diretamente"""
-    print("\n🔍 Testando endpoint de upload...")
+    print("\n Testando endpoint de upload...")
 
     try:
         # Criar planilha de teste
@@ -81,13 +81,13 @@ def testar_endpoint_upload():
         print(f"Status da resposta: {response.status_code}")
 
         if response.status_code == 200:
-            print("✅ Upload bem-sucedido!")
+            print(" Upload bem-sucedido!")
             resultado = response.json()
             print(f"   Empreendimentos processados: {resultado.get('empreendimentos_processados', 0)}")
             print(f"   Unidades processadas: {resultado.get('unidades_processadas', 0)}")
             return True
         else:
-            print(f"❌ Upload falhou com status {response.status_code}")
+            print(f" Upload falhou com status {response.status_code}")
             try:
                 erro = response.json()
                 print(f"   Erro: {erro.get('error', 'Erro desconhecido')}")
@@ -98,15 +98,15 @@ def testar_endpoint_upload():
             return False
 
     except requests.exceptions.Timeout:
-        print("❌ Timeout no upload (servidor pode estar sobrecarregado)")
+        print(" Timeout no upload (servidor pode estar sobrecarregado)")
         return False
     except Exception as e:
-        print(f"❌ Erro no upload: {str(e)}")
+        print(f" Erro no upload: {str(e)}")
         return False
 
 def testar_cors():
     """Testa configuração CORS"""
-    print("\n🔍 Testando configuração CORS...")
+    print("\n Testando configuração CORS...")
 
     try:
         # Fazer uma requisição OPTIONS (preflight)
@@ -124,20 +124,20 @@ def testar_cors():
 
         cors_present = any(h in response.headers for h in cors_headers)
         if cors_present:
-            print("✅ CORS configurado corretamente")
+            print(" CORS configurado corretamente")
             return True
         else:
-            print("❌ Headers CORS não encontrados")
+            print(" Headers CORS não encontrados")
             print("   Headers de resposta:", list(response.headers.keys()))
             return False
 
     except Exception as e:
-        print(f"❌ Erro ao testar CORS: {str(e)}")
+        print(f" Erro ao testar CORS: {str(e)}")
         return False
 
 def testar_tamanho_arquivo():
     """Testa limite de tamanho de arquivo"""
-    print("\n🔍 Testando limite de tamanho de arquivo...")
+    print("\n Testando limite de tamanho de arquivo...")
 
     try:
         # Criar arquivo grande (mas ainda dentro do limite)
@@ -165,25 +165,29 @@ def testar_tamanho_arquivo():
         )
 
         if response.status_code == 413:
-            print("❌ Arquivo muito grande (413 - Payload Too Large)")
+            print(" Arquivo muito grande (413 - Payload Too Large)")
             return False
         elif response.status_code == 200:
-            print("✅ Arquivo dentro do limite de tamanho")
+            print(" Arquivo dentro do limite de tamanho")
             return True
         else:
-            print(f"⚠️  Status inesperado: {response.status_code}")
+            print(f"  Status inesperado: {response.status_code}")
             return True
 
     except Exception as e:
-        print(f"❌ Erro ao testar tamanho: {str(e)}")
+        print(f" Erro ao testar tamanho: {str(e)}")
         return False
 
 def testar_banco_dados():
     """Testa conexão com banco de dados"""
-    print("\n🔍 Testando conexão com banco de dados...")
+    print("\n Testando conexão com banco de dados...")
 
     try:
-        from app import create_app
+        import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+
+from app import create_app
         app = create_app()
 
         with app.app_context():
@@ -192,19 +196,19 @@ def testar_banco_dados():
                 # Testar uma query simples
                 result = db.execute("SELECT 1").fetchone()
                 if result:
-                    print("✅ Conexão com banco de dados OK")
+                    print(" Conexão com banco de dados OK")
                     return True
                 else:
-                    print("❌ Query de teste falhou")
+                    print(" Query de teste falhou")
                     return False
 
     except Exception as e:
-        print(f"❌ Erro na conexão com banco: {str(e)}")
+        print(f" Erro na conexão com banco: {str(e)}")
         return False
 
 def testar_logs():
     """Verifica se há logs de erro recentes"""
-    print("\n🔍 Verificando logs de erro...")
+    print("\n Verificando logs de erro...")
 
     try:
         log_files = ['logs/flask.log', 'logs/error.log']
@@ -218,22 +222,22 @@ def testar_logs():
 
                     for line in lines:
                         if 'ERROR' in line or 'Exception' in line:
-                            print(f"   ❌ Erro encontrado: {line.strip()}")
+                            print(f"    Erro encontrado: {line.strip()}")
                             found_errors = True
 
         if not found_errors:
-            print("✅ Nenhum erro recente encontrado nos logs")
+            print(" Nenhum erro recente encontrado nos logs")
             return True
         else:
             return False
 
     except Exception as e:
-        print(f"❌ Erro ao verificar logs: {str(e)}")
+        print(f" Erro ao verificar logs: {str(e)}")
         return False
 
 def executar_diagnostico_completo():
     """Executa todos os testes de diagnóstico"""
-    print("🚀 INICIANDO DIAGNÓSTICO COMPLETO DO SISTEMA DE UPLOAD")
+    print(" INICIANDO DIAGNÓSTICO COMPLETO DO SISTEMA DE UPLOAD")
     print("=" * 60)
 
     testes = [
@@ -252,28 +256,28 @@ def executar_diagnostico_completo():
             resultado = funcao_teste()
             resultados[nome_teste] = resultado
         except Exception as e:
-            print(f"❌ Erro ao executar teste '{nome_teste}': {str(e)}")
+            print(f" Erro ao executar teste '{nome_teste}': {str(e)}")
             resultados[nome_teste] = False
 
     print("\n" + "=" * 60)
-    print("📊 RESUMO DOS TESTES:")
+    print(" RESUMO DOS TESTES:")
 
     todos_passaram = True
     for nome_teste, resultado in resultados.items():
-        status = "✅ PASSOU" if resultado else "❌ FALHOU"
+        status = " PASSOU" if resultado else " FALHOU"
         print(f"   {nome_teste}: {status}")
         if not resultado:
             todos_passaram = False
 
     print("\n" + "=" * 60)
     if todos_passaram:
-        print("🎉 TODOS OS TESTES PASSARAM!")
+        print(" TODOS OS TESTES PASSARAM!")
         print("   Se ainda há erro de upload, pode ser:")
         print("   - Problema no frontend (JavaScript/React)")
         print("   - Arquivo do usuário com formato diferente")
         print("   - Problema de rede entre frontend e backend")
     else:
-        print("❌ ALGUNS TESTES FALHARAM!")
+        print(" ALGUNS TESTES FALHARAM!")
         print("   Os testes que falharam precisam ser corrigidos primeiro.")
 
     return todos_passaram

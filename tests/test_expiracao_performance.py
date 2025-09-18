@@ -9,6 +9,10 @@ from openpyxl import Workbook
 os.environ['DATABASE_URL'] = 'sqlite:///test_expiracao_obras_his.db'
 
 # Importar e testar a aplicação
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+
 from app import create_app
 
 def test_expiracao_automatica():
@@ -59,9 +63,9 @@ def test_expiracao_automatica():
                 
                 print(f"   Diferença em dias: {diferenca.days}")
                 if diferenca.days == 30:
-                    print("   ✅ Expiração configurada corretamente para 30 dias")
+                    print("    Expiração configurada corretamente para 30 dias")
                 else:
-                    print(f"   ❌ Erro: Expiração deveria ser 30 dias, mas é {diferenca.days}")
+                    print(f"    Erro: Expiração deveria ser 30 dias, mas é {diferenca.days}")
         
         # Testar filtro somente publicadas
         print("\n3. Testando filtro de empreendimentos publicados...")
@@ -75,9 +79,9 @@ def test_expiracao_automatica():
             # Verificar se o empreendimento recém-publicado está na lista
             encontrado = any(emp.get('id') == empreendimento_id for emp in empreendimentos_publicados)
             if encontrado:
-                print("   ✅ Empreendimento publicado aparece na listagem")
+                print("    Empreendimento publicado aparece na listagem")
             else:
-                print("   ❌ Empreendimento publicado não aparece na listagem")
+                print("    Empreendimento publicado não aparece na listagem")
 
 def criar_planilha_grande(num_empreendimentos=50, unidades_por_emp=10):
     """Cria planilha grande para teste de performance"""
@@ -128,7 +132,7 @@ def test_performance():
     app = create_app()
     
     with app.test_client() as client:
-        print("\n🚀 Testando performance com planilha grande...")
+        print("\n Testando performance com planilha grande...")
         
         # Criar planilha com 20 empreendimentos e 5 unidades cada (100 linhas)
         print("\n1. Criando planilha de teste (20 empreendimentos, 5 unidades cada)...")
@@ -155,9 +159,9 @@ def test_performance():
             print(f"   Erros: {preview_data.get('erros')}")
             
             if tempo_preview < 5.0:
-                print("   ✅ Performance de preview aceitável (< 5s)")
+                print("    Performance de preview aceitável (< 5s)")
             else:
-                print("   ⚠️ Performance de preview pode ser melhorada")
+                print("    Performance de preview pode ser melhorada")
         
         # Teste de upload real
         print("\n3. Testando upload real de planilha grande...")
@@ -182,16 +186,16 @@ def test_performance():
             print(f"   Erros: {upload_data.get('erros')}")
             
             if tempo_upload < 10.0:
-                print("   ✅ Performance de upload aceitável (< 10s)")
+                print("    Performance de upload aceitável (< 10s)")
             else:
-                print("   ⚠️ Performance de upload pode ser melhorada")
+                print("    Performance de upload pode ser melhorada")
 
 def test_edge_cases():
     """Testa casos extremos"""
     app = create_app()
     
     with app.test_client() as client:
-        print("\n🔍 Testando casos extremos...")
+        print("\n Testando casos extremos...")
         
         # Teste 1: CEP com formatação diferente
         print("\n1. Testando CEPs com formatações diferentes...")
@@ -247,7 +251,7 @@ def test_edge_cases():
 
 def run_advanced_tests():
     """Executa testes avançados"""
-    print("🔬 Iniciando testes avançados do Sistema Obras HIS...")
+    print(" Iniciando testes avançados do Sistema Obras HIS...")
     
     try:
         # Teste de expiração
@@ -259,10 +263,10 @@ def run_advanced_tests():
         # Teste de casos extremos
         test_edge_cases()
         
-        print("\n✅ Todos os testes avançados foram executados!")
+        print("\n Todos os testes avançados foram executados!")
         
     except Exception as e:
-        print(f"\n❌ Erro durante os testes avançados: {str(e)}")
+        print(f"\n Erro durante os testes avançados: {str(e)}")
         import traceback
         traceback.print_exc()
 

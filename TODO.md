@@ -1,57 +1,42 @@
-# ✅ COMPLETED: CEP Extraction from Address in Spreadsheet Upload
+# Higienização de Arquivos para Produção
 
-## Issue Resolved
-- ✅ Spreadsheet upload now works when CEP is embedded in address column
-- ✅ Validation passes after automatic CEP extraction
-- ✅ Address is cleaned by removing CEP part after extraction
+## Tarefas Pendentes
 
-## Implementation Details
-- **Function Added**: `_extrair_cep_do_endereco()` in `src/services/empreendimentos_service.py`
-- **Regex Pattern**: Multiple patterns for robust CEP detection:
-  - `r'cep\s*:?\s*(\d{5}-?\d{3})'` - "cep 12345678" or "cep: 12345-678"
-  - `r'(\d{5}-\d{3})'` - "12345-678"
-  - `r'(\d{8})'` - "12345678"
-- **Validation Logic**: Attempts CEP extraction when CEP column is empty
-- **Address Cleaning**: Removes CEP part after successful extraction
+### 1. Limpeza de Emoticons nos Arquivos de Teste
+- [x] Remover emoticons de test_app.py
+- [x] Remover emoticons de test_planilha.py
+- [x] Remover emoticons de test_complete.py
+- [x] Remover emoticons de test_expiracao_performance.py
+- [x] Remover emoticons de test_integracao_completa.py
+- [x] Remover emoticons de test_interface_completo.py
+- [x] Remover emoticons de test_melhorias_completas.py
+- [x] Remover emoticons de test_planilha_usuario.py
+- [x] Remover emoticons de test_unicode_planilha_flexivel.py
+- [x] Remover emoticons de test_upload_final.py
+- [x] Remover emoticons de test_upload_planilha_debug.py
+- [x] Remover emoticons de test_upload_simples.py
+- [x] Remover emoticons de test_cep_extraction_fix.py
+- [x] Remover emoticons de test_upload_completo.py
+- [x] Remover emoticons de diagnostico_upload.py
 
-## Testing Results
-- ✅ **Preview Test Passed**: CEP "02273-120" extracted correctly from address
-- ✅ **Address Cleaned**: "Rua José Buono, 184 e 178/180 - Jaçanã - São Paulo/SP"
-- ✅ **Validation Success**: No more "CEP é obrigatório" errors
-- ✅ **Full Upload Test Passed**: Complete upload process works end-to-end
-- ✅ **Database Integration**: Records created successfully in database
-- ✅ **End-to-End Test**: Both preview and actual upload work correctly
+### 2. Movimentação de Arquivos de Teste
+- [x] Mover todos os arquivos test_*.py da raiz para tests/
+- [x] Mover diagnostico_upload.py para tests/
+- [x] Verificar se os arquivos foram movidos corretamente
+- [x] Corrigir imports para funcionar do diretório tests/
+- [x] Testar se os arquivos ainda funcionam após a movimentação
 
-## Files Modified
-- `src/services/empreendimentos_service.py` - Main CEP extraction logic
-  - Updated `preview_planilha()` method
-  - Updated `processar_planilha()` method
-  - Added `_extrair_cep_do_endereco()` helper
-  - Added `_limpar_endereco_sem_cep()` helper
+### 3. Verificação Final
+- [x] Verificar se não há emoticons restantes nos arquivos de código
+- [x] Confirmar que todos os arquivos de teste estão organizados em tests/
+- [x] Executar testes para garantir que tudo ainda funciona
 
-## Expected Outcome Achieved
-- ✅ Upload succeeds when CEP is in address instead of separate column
-- ✅ CEP is properly extracted and stored
-- ✅ Address is cleaned of CEP information
-- ✅ Both preview and actual upload work correctly
-
-## Current Status
-🎉 **IMPLEMENTATION COMPLETE AND FULLY TESTED**
-
-The CEP extraction functionality is working perfectly. If you're still experiencing upload errors ("Erro ao fazer upload do arquivo. Tente novamente."), the issue is likely:
-
-### Possible Causes for Upload Errors:
-1. **Frontend Interface Issues**: Problems in the web interface upload form
-2. **API Authentication**: Missing or invalid API key in requests
-3. **File Format Problems**: User's spreadsheet format differs from expected
-4. **Server Configuration**: CORS, file size limits, or other server settings
-5. **Network Issues**: Connection problems between frontend and backend
-
-### Recommended Next Steps:
-- Check browser console for JavaScript errors
-- Verify API key configuration
-- Test with the exact spreadsheet format used
-- Check server logs for detailed error messages
-- Ensure CORS is properly configured
-
-The core CEP extraction logic is solid and thoroughly tested. The upload error is likely in the frontend-backend integration layer.
+## Notas
+- Os arquivos de código principal (src/, app.py, frontend) já estavam limpos
+- Nenhum comentário desnecessário encontrado nos arquivos de código
+- Todos os arquivos de teste foram movidos para o diretório tests/
+- Emoticons foram removidos com sucesso de todos os arquivos de teste
+- Imports corrigidos para funcionar do diretório tests/
+- Testes verificados e funcionando corretamente
+- Scripts temporários removidos
+- Higienização completa para produção concluída!

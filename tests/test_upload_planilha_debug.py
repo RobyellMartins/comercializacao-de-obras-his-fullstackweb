@@ -7,6 +7,10 @@ import io
 os.environ['DATABASE_URL'] = 'sqlite:///test_upload_debug.db'
 
 # Importar e testar a aplicação
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+
 from app import create_app
 
 def test_upload_planilha_debug():
@@ -14,16 +18,16 @@ def test_upload_planilha_debug():
     app = create_app()
     
     with app.test_client() as client:
-        print("🧪 TESTE DEBUG - UPLOAD DE PLANILHA")
+        print(" TESTE DEBUG - UPLOAD DE PLANILHA")
         print("=" * 50)
         
         # Teste 1: Verificar se o backend está funcionando
-        print("\n1. 🔧 Testando Backend...")
+        print("\n1.  Testando Backend...")
         response = client.get('/health')
-        print(f"   ✅ Health Check: {response.status_code}")
+        print(f"    Health Check: {response.status_code}")
         
         # Teste 2: Criar planilha de teste com formato correto
-        print("\n2. 📊 Criando Planilha de Teste...")
+        print("\n2.  Criando Planilha de Teste...")
         
         wb = Workbook()
         ws = wb.active
@@ -72,7 +76,7 @@ def test_upload_planilha_debug():
         ws['H4'] = 200000.00
         ws['I4'] = 'consórcio'
         
-        print("   📝 Planilha criada com:")
+        print("    Planilha criada com:")
         print("   - 2 empreendimentos")
         print("   - 3 unidades")
         print("   - Cabeçalhos corretos")
@@ -83,35 +87,35 @@ def test_upload_planilha_debug():
         file_stream.seek(0)
         
         # Teste 3: Testar preview primeiro
-        print("\n3. 👁️ Testando Preview da Planilha...")
+        print("\n3.  Testando Preview da Planilha...")
         
         response = client.post('/empreendimentos/upload/preview',
                              data={'file': (file_stream, 'teste_upload.xlsx')},
                              content_type='multipart/form-data')
         
-        print(f"   ✅ Preview Status: {response.status_code}")
+        print(f"    Preview Status: {response.status_code}")
         
         if response.status_code == 200:
             preview_data = response.get_json()
-            print(f"   📊 Preview válido: {preview_data.get('valido')}")
-            print(f"   📊 Empreendimentos encontrados: {preview_data.get('empreendimentos_encontrados')}")
-            print(f"   📊 Unidades encontradas: {preview_data.get('unidades_encontradas')}")
-            print(f"   📊 Erros: {preview_data.get('erros')}")
+            print(f"    Preview válido: {preview_data.get('valido')}")
+            print(f"    Empreendimentos encontrados: {preview_data.get('empreendimentos_encontrados')}")
+            print(f"    Unidades encontradas: {preview_data.get('unidades_encontradas')}")
+            print(f"    Erros: {preview_data.get('erros')}")
             
             if preview_data.get('detalhes_erros'):
-                print("   ❌ Erros encontrados:")
+                print("    Erros encontrados:")
                 for erro in preview_data.get('detalhes_erros', []):
                     print(f"      - {erro}")
             
             if preview_data.get('empreendimentos'):
-                print("   📋 Empreendimentos no preview:")
+                print("    Empreendimentos no preview:")
                 for emp in preview_data.get('empreendimentos', []):
                     print(f"      - {emp.get('nome')} - {emp.get('nome_empresa')}")
         else:
-            print(f"   ❌ Erro no preview: {response.get_json()}")
+            print(f"    Erro no preview: {response.get_json()}")
         
         # Teste 4: Testar upload real
-        print("\n4. 📤 Testando Upload Real...")
+        print("\n4.  Testando Upload Real...")
         
         # Resetar stream
         file_stream.seek(0)
@@ -120,39 +124,39 @@ def test_upload_planilha_debug():
                              data={'file': (file_stream, 'teste_upload.xlsx')},
                              content_type='multipart/form-data')
         
-        print(f"   ✅ Upload Status: {response.status_code}")
+        print(f"    Upload Status: {response.status_code}")
         
         if response.status_code == 200:
             upload_data = response.get_json()
-            print(f"   📊 Empreendimentos processados: {upload_data.get('empreendimentos_processados')}")
-            print(f"   📊 Unidades processadas: {upload_data.get('unidades_processadas')}")
-            print(f"   📊 Erros: {upload_data.get('erros')}")
+            print(f"    Empreendimentos processados: {upload_data.get('empreendimentos_processados')}")
+            print(f"    Unidades processadas: {upload_data.get('unidades_processadas')}")
+            print(f"    Erros: {upload_data.get('erros')}")
             
             if upload_data.get('detalhes_erros'):
-                print("   ❌ Erros encontrados:")
+                print("    Erros encontrados:")
                 for erro in upload_data.get('detalhes_erros', []):
                     print(f"      - {erro}")
             
             if upload_data.get('empreendimentos'):
-                print("   📋 Empreendimentos criados:")
+                print("    Empreendimentos criados:")
                 for emp in upload_data.get('empreendimentos', []):
                     print(f"      - ID: {emp.get('id')} - {emp.get('nome')}")
             
             if upload_data.get('unidades'):
-                print("   🏠 Unidades criadas:")
+                print("    Unidades criadas:")
                 for unidade in upload_data.get('unidades', []):
                     print(f"      - Unidade {unidade.get('numero_unidade')} - Emp ID: {unidade.get('empreendimento_id')}")
         else:
             error_data = response.get_json()
-            print(f"   ❌ Erro no upload: {error_data}")
+            print(f"    Erro no upload: {error_data}")
         
         # Teste 5: Verificar se dados foram salvos no banco
-        print("\n5. 🗄️ Verificando Dados no Banco...")
+        print("\n5.  Verificando Dados no Banco...")
         
         response = client.get('/empreendimentos')
         if response.status_code == 200:
             empreendimentos = response.get_json()
-            print(f"   📊 Total de empreendimentos no banco: {len(empreendimentos)}")
+            print(f"    Total de empreendimentos no banco: {len(empreendimentos)}")
             
             for emp in empreendimentos:
                 print(f"      - {emp.get('nome')} - {emp.get('nome_empresa')}")
@@ -160,13 +164,13 @@ def test_upload_planilha_debug():
         response = client.get('/api/unidades')
         if response.status_code == 200:
             unidades = response.get_json()
-            print(f"   📊 Total de unidades no banco: {len(unidades)}")
+            print(f"    Total de unidades no banco: {len(unidades)}")
             
             for unidade in unidades:
                 print(f"      - Unidade {unidade.get('numero_unidade')} - {unidade.get('mecanismo_pagamento')}")
         
         # Teste 6: Testar com planilha com cabeçalhos alternativos
-        print("\n6. 🔄 Testando com Cabeçalhos Alternativos...")
+        print("\n6.  Testando com Cabeçalhos Alternativos...")
         
         wb2 = Workbook()
         ws2 = wb2.active
@@ -201,20 +205,20 @@ def test_upload_planilha_debug():
                              data={'file': (file_stream2, 'teste_alt.xlsx')},
                              content_type='multipart/form-data')
         
-        print(f"   ✅ Preview Alternativo Status: {response.status_code}")
+        print(f"    Preview Alternativo Status: {response.status_code}")
         
         if response.status_code == 200:
             preview_alt = response.get_json()
-            print(f"   📊 Preview alternativo válido: {preview_alt.get('valido')}")
-            print(f"   📊 Empreendimentos encontrados: {preview_alt.get('empreendimentos_encontrados')}")
+            print(f"    Preview alternativo válido: {preview_alt.get('valido')}")
+            print(f"    Empreendimentos encontrados: {preview_alt.get('empreendimentos_encontrados')}")
             
             if not preview_alt.get('valido'):
-                print("   ❌ Erros com cabeçalhos alternativos:")
+                print("    Erros com cabeçalhos alternativos:")
                 for erro in preview_alt.get('detalhes_erros', []):
                     print(f"      - {erro}")
         
         print("\n" + "=" * 50)
-        print("🎯 DIAGNÓSTICO COMPLETO!")
+        print(" DIAGNÓSTICO COMPLETO!")
         
         return True
 
@@ -222,12 +226,12 @@ if __name__ == '__main__':
     try:
         success = test_upload_planilha_debug()
         if success:
-            print("\n✅ Diagnóstico concluído!")
+            print("\n Diagnóstico concluído!")
         else:
-            print("\n❌ Erro no diagnóstico")
+            print("\n Erro no diagnóstico")
             sys.exit(1)
     except Exception as e:
-        print(f"\n❌ Erro durante o diagnóstico: {str(e)}")
+        print(f"\n Erro durante o diagnóstico: {str(e)}")
         import traceback
         traceback.print_exc()
         sys.exit(1)

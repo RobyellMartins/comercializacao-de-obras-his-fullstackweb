@@ -7,6 +7,10 @@ from openpyxl import Workbook
 os.environ['DATABASE_URL'] = 'sqlite:///test_obras_his.db'
 
 # Importar e testar a aplicação
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+
 from app import create_app
 
 def criar_planilha_teste():
@@ -48,7 +52,7 @@ def test_planilha_functionality():
     app = create_app()
     
     with app.test_client() as client:
-        print("🔍 Testando funcionalidades de planilha...")
+        print("Testando funcionalidades de planilha...")
         
         # Criar planilha de teste
         planilha = criar_planilha_teste()
@@ -103,7 +107,7 @@ def test_planilha_functionality():
             for emp in empreendimentos:
                 print(f"     - {emp.get('nome')} ({emp.get('nome_empresa')})")
         
-        print("\n✅ Testes de planilha concluídos!")
+        print("\nTestes de planilha concluídos!")
 
 if __name__ == '__main__':
     test_planilha_functionality()

@@ -5,6 +5,10 @@ import sys
 os.environ['DATABASE_URL'] = 'sqlite:///test_obras_his.db'
 
 # Importar e testar a aplicação
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+
 from app import create_app
 import json
 
@@ -13,7 +17,7 @@ def test_basic_functionality():
     app = create_app()
     
     with app.test_client() as client:
-        print("🔍 Testando funcionalidades básicas...")
+        print("Testando funcionalidades básicas...")
         
         # Teste 1: Health check
         print("\n1. Testando health check...")
@@ -72,7 +76,7 @@ def test_basic_functionality():
         print(f"   Status: {response.status_code}")
         print(f"   Response: {response.get_json()}")
         
-        print("\n✅ Testes básicos concluídos!")
+        print("\nTestes básicos concluídos!")
 
 if __name__ == '__main__':
     test_basic_functionality()

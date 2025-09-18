@@ -25,6 +25,9 @@ const UploadPlanilha = () => {
   const [uploading, setUploading] = useState(false);
   const [uploadResult, setUploadResult] = useState(null);
   const [error, setError] = useState('');
+  const [previewData, setPreviewData] = useState(null);
+  const [previewing, setPreviewing] = useState(false);
+  const [confirming, setConfirming] = useState(false);
 
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
@@ -41,15 +44,46 @@ const UploadPlanilha = () => {
     }
   };
 
-  const handleUpload = async () => {
+  const handlePreview = async () => {
     if (!file) {
       setError('Por favor, selecione um arquivo');
       return;
     }
 
-    setUploading(true);
+    setPreviewing(true);
     setError('');
-    setUploadResult(null);
+    setPreviewData(null);
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await api.post('/empreendimentos/upload/preview', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      setPreviewData(response.data);
+    } catch (err) {
+      console.error('Erro no preview:', err);
+      setError(
+        err.response?.data?.error ||
+        'Erro ao processar preview do arquivo. Tente novamente.'
+      );
+    } finally {
+      setPreviewing(false);
+    }
+  };
+
+  const handleConfirmUpload = async () => {
+    if (!file) {
+      setError('Por favor, selecione um arquivo');
+      return;
+    }
+
+    setConfirming(true);
+    setError('');
 
     const formData = new FormData();
     formData.append('file', file);
@@ -62,14 +96,15 @@ const UploadPlanilha = () => {
       });
 
       setUploadResult(response.data);
+      setPreviewData(null); // Limpar preview após upload
     } catch (err) {
       console.error('Erro no upload:', err);
       setError(
-        err.response?.data?.error || 
+        err.response?.data?.error ||
         'Erro ao fazer upload do arquivo. Tente novamente.'
       );
     } finally {
-      setUploading(false);
+      setConfirming(false);
     }
   };
 
@@ -151,19 +186,19 @@ const UploadPlanilha = () => {
             <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
               <Button
                 variant="contained"
-                onClick={handleUpload}
-                disabled={!file || uploading}
+                onClick={handlePreview}
+                disabled={!file || previewing || previewData}
                 size="large"
                 startIcon={<CloudUploadIcon />}
               >
-                {uploading ? 'Enviando...' : 'Fazer Upload'}
+                {previewing ? 'Processando...' : 'Visualizar Dados'}
               </Button>
-              
+
               {file && (
                 <Button
                   variant="outlined"
                   onClick={resetUpload}
-                  disabled={uploading}
+                  disabled={previewing}
                   size="large"
                 >
                   Cancelar
@@ -179,6 +214,131 @@ const UploadPlanilha = () => {
             <Typography variant="body2" align="center" sx={{ mt: 1 }}>
               Processando arquivo...
             </Typography>
+          </Box>
+        )}
+
+        {previewData && !uploadResult && (
+          <Box sx={{ mt: 3 }}>
+            <Alert severity={previewData.valido ? "success" : "warning"} sx={{ mb: 3 }}>
+              {previewData.valido ? "Dados validados com sucesso!" : "Foram encontrados alguns problemas nos dados"}
+            </Alert>
+
+            <Typography variant="h6" gutterBottom>
+              Resumo dos Dados Encontrados:
+            </Typography>
+
+            <List>
+              <ListItem>
+                <ListItemText
+                  primary="Total de linhas na planilha"
+                  secondary={previewData.total_linhas || 0}
+                />
+              </ListItem>
+              <Divider />
+              <ListItem>
+                <ListItemText
+                  primary="Empreendimentos encontrados"
+                  secondary={previewData.empreendimentos_encontrados || 0}
+                />
+              </ListItem>
+              <Divider />
+              <ListItem>
+                <ListItemText
+                  primary="Unidades encontradas"
+                  secondary={previewData.unidades_encontradas || 0}
+                />
+              </ListItem>
+              <Divider />
+              <ListItem>
+                <ListItemText
+                  primary="Erros encontrados"
+                  secondary={previewData.erros || 0}
+                />
+              </ListItem>
+            </List>
+
+            {previewData.detalhes_erros && previewData.detalhes_erros.length > 0 && (
+              <Box sx={{ mt: 2 }}>
+                <Typography variant="subtitle2" color="error" gutterBottom>
+                  Detalhes dos erros encontrados:
+                </Typography>
+                <List dense>
+                  {previewData.detalhes_erros.map((erro, index) => (
+                    <ListItem key={index}>
+                      <ListItemText
+                        primary={erro}
+                        sx={{ color: 'error.main' }}
+                      />
+                    </ListItem>
+                  ))}
+                </List>
+              </Box>
+            )}
+
+            {previewData.empreendimentos && previewData.empreendimentos.length > 0 && (
+              <Box sx={{ mt: 2 }}>
+                <Typography variant="subtitle2" color="success.main" gutterBottom>
+                  Empreendimentos que serão criados:
+                </Typography>
+                <List dense>
+                  {previewData.empreendimentos.map((emp, index) => (
+                    <ListItem key={index}>
+                      <ListItemText
+                        primary={emp.nome}
+                        secondary={`Empresa: ${emp.nome_empresa} | CEP: ${emp.cep}${emp.endereco ? ` | Endereço: ${emp.endereco}` : ''}`}
+                      />
+                    </ListItem>
+                  ))}
+                </List>
+              </Box>
+            )}
+
+            {previewData.unidades && previewData.unidades.length > 0 && (
+              <Box sx={{ mt: 2 }}>
+                <Typography variant="subtitle2" color="info.main" gutterBottom>
+                  Unidades que serão criadas:
+                </Typography>
+                <List dense>
+                  {previewData.unidades.slice(0, 20).map((unidade, index) => (
+                    <ListItem key={index}>
+                      <ListItemText
+                        primary={`Unidade ${unidade.numero_unidade}`}
+                        secondary={`${unidade.tamanho_m2 ? unidade.tamanho_m2 + 'm²' : 'Tamanho não informado'} | ${unidade.preco_venda ? 'R$ ' + unidade.preco_venda.toLocaleString('pt-BR') : 'Preço não informado'} | ${unidade.mecanismo_pagamento || 'Pagamento não informado'}`}
+                      />
+                    </ListItem>
+                  ))}
+                  {previewData.unidades.length > 20 && (
+                    <ListItem>
+                      <ListItemText
+                        primary={`... e mais ${previewData.unidades.length - 20} unidades`}
+                        sx={{ fontStyle: 'italic', color: 'text.secondary' }}
+                      />
+                    </ListItem>
+                  )}
+                </List>
+              </Box>
+            )}
+
+            <Box sx={{ mt: 3, display: 'flex', gap: 2, justifyContent: 'center' }}>
+              <Button
+                variant="contained"
+                onClick={handleConfirmUpload}
+                disabled={confirming}
+                size="large"
+                color="success"
+              >
+                {confirming ? 'Processando...' : 'Confirmar Cadastro'}
+              </Button>
+
+              <Button
+                variant="outlined"
+                onClick={() => setPreviewData(null)}
+                disabled={confirming}
+                size="large"
+              >
+                Voltar
+              </Button>
+            </Box>
           </Box>
         )}
 

@@ -77,7 +77,7 @@ python app.py
 A API estará disponível em: `http://localhost:5000`
 Documentação Swagger: `http://localhost:5000/docs/`
 
-### 6. Frontend (opcional)
+### 6. Frontend 
 ```bash
 cd obras-his-frontend
 npm install
@@ -113,7 +113,7 @@ obras-his/
 ## API Endpoints
 
 ### Empreendimentos
-- `GET /empreendimentos` - Listar empreendimentos (com filtros)
+- `GET /empreendimentos` - Listar empreendimentos
 - `POST /empreendimentos` - Criar empreendimento
 - `GET /empreendimentos/{id}` - Buscar empreendimento
 - `PUT /empreendimentos/{id}` - Atualizar empreendimento
@@ -129,7 +129,7 @@ obras-his/
 - `DELETE /api/construtoras/{id}` - Deletar construtora
 
 ### Obras
-- `GET /api/obras` - Listar obras (com filtros)
+- `GET /api/obras` - Listar obras
 - `POST /api/obras` - Criar obra
 - `GET /api/obras/{id}` - Buscar obra
 - `PUT /api/obras/{id}` - Atualizar obra
@@ -220,19 +220,3 @@ ALLOWED_ORIGINS=https://seudominio.com
 pip install gunicorn
 gunicorn -w 4 -b 0.0.0.0:5000 app:app
 ```
-
-## Contribuição
-
-1. Fork o projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
-
-## Licença
-
-Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalhes.
-
-## Suporte
-
-Para suporte, abra uma issue no repositório ou entre em contato com a equipe de desenvolvimento.

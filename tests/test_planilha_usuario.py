@@ -7,6 +7,10 @@ from openpyxl import Workbook
 os.environ['DATABASE_URL'] = 'sqlite:///test_usuario_obras_his.db'
 
 # Importar e testar a aplicação
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+
 from app import create_app
 
 def criar_planilha_usuario():
@@ -36,7 +40,7 @@ def test_planilha_usuario():
     app = create_app()
     
     with app.test_client() as client:
-        print("🔍 Testando planilha do usuário...")
+        print(" Testando planilha do usuário...")
         
         # Criar planilha do usuário
         planilha = criar_planilha_usuario()

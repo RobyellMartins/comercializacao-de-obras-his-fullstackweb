@@ -7,6 +7,10 @@ import io
 os.environ['DATABASE_URL'] = 'sqlite:///test_upload_simples.db'
 
 # Importar e testar a aplicação
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+
 from app import create_app
 
 def test_upload_simples():
@@ -14,7 +18,7 @@ def test_upload_simples():
     app = create_app()
     
     with app.test_client() as client:
-        print("🧪 TESTE SIMPLES - UPLOAD DE PLANILHA")
+        print(" TESTE SIMPLES - UPLOAD DE PLANILHA")
         print("=" * 50)
         
         # Criar planilha de teste
@@ -43,14 +47,14 @@ def test_upload_simples():
         ws['H2'] = 180000.00
         ws['I2'] = 'financiamento'
         
-        print("📝 Planilha criada com 1 empreendimento e 1 unidade")
+        print(" Planilha criada com 1 empreendimento e 1 unidade")
         
         # Teste 1: Preview
         file_stream = io.BytesIO()
         wb.save(file_stream)
         file_stream.seek(0)
         
-        print("\n1. 👁️ Testando Preview...")
+        print("\n1.  Testando Preview...")
         response = client.post('/empreendimentos/upload/preview',
                              data={'file': (file_stream, 'teste.xlsx')},
                              content_type='multipart/form-data')
@@ -67,7 +71,7 @@ def test_upload_simples():
         wb.save(file_stream2)
         file_stream2.seek(0)
         
-        print("\n2. 📤 Testando Upload Real...")
+        print("\n2.  Testando Upload Real...")
         response = client.post('/empreendimentos/upload',
                              data={'file': (file_stream2, 'teste.xlsx')},
                              content_type='multipart/form-data')
@@ -87,7 +91,7 @@ def test_upload_simples():
             print(f"   Erro: {response.get_json()}")
         
         # Teste 3: Verificar banco
-        print("\n3. 🗄️ Verificando Banco...")
+        print("\n3.  Verificando Banco...")
         response = client.get('/empreendimentos')
         if response.status_code == 200:
             emps = response.get_json()
