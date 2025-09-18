@@ -8,32 +8,75 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-# Configuração do banco de dados
+# Configuração do banco de dados com fallback automático
 DATABASE_URL = os.getenv('DATABASE_URL')
+engine = None
 
-if not DATABASE_URL:
-    # Usar SQLite como padrão para desenvolvimento
-    DATABASE_URL = 'sqlite:///obras_his.db'
+def create_database_engine():
+    """Cria engine do banco com fallback automático"""
+    global engine
+    
+    if not DATABASE_URL:
+        # Usar SQLite como padrão para desenvolvimento
+        database_url = 'sqlite:///obras_his.db'
+        logger.info("Usando SQLite como banco padrão")
+    else:
+        database_url = DATABASE_URL
+    
+    # Tentar PostgreSQL primeiro se configurado
+    if database_url.startswith('postgresql'):
+        try:
+            logger.info("Tentando conectar ao PostgreSQL...")
+            test_engine = create_engine(
+                database_url,
+                pool_pre_ping=True,
+                pool_recycle=300,
+                pool_size=10,
+                max_overflow=20,
+                echo=False
+            )
+            # Testar conexão
+            with test_engine.connect() as conn:
+                conn.execute("SELECT 1")
+            
+            logger.info("Conexão PostgreSQL estabelecida com sucesso")
+            engine = test_engine
+            return engine
+            
+        except Exception as e:
+            logger.warning(f"Falha ao conectar PostgreSQL: {str(e)}")
+            logger.info("Fazendo fallback para SQLite...")
+            
+            # Fallback para SQLite
+            database_url = 'sqlite:///obras_his.db'
+    
+    # Configurar SQLite (padrão ou fallback)
+    if database_url.startswith('sqlite'):
+        logger.info("Configurando SQLite...")
+        engine = create_engine(
+            database_url,
+            poolclass=StaticPool,
+            connect_args={
+                "check_same_thread": False,
+                "timeout": 20
+            },
+            echo=False  # Mudar para True para debug SQL
+        )
+    else:
+        # Outros bancos (MySQL, etc.)
+        engine = create_engine(
+            database_url,
+            pool_pre_ping=True,
+            pool_recycle=300,
+            pool_size=10,
+            max_overflow=20,
+            echo=False
+        )
+    
+    return engine
 
-# Configurações específicas para SQLite
-if DATABASE_URL.startswith('sqlite'):
-    engine = create_engine(
-        DATABASE_URL,
-        poolclass=StaticPool,
-        connect_args={
-            "check_same_thread": False,
-            "timeout": 20
-        },
-        echo=False  # Mudar para True para debug SQL
-    )
-else:
-    # Configurações para PostgreSQL ou outros bancos
-    engine = create_engine(
-        DATABASE_URL,
-        pool_pre_ping=True,
-        pool_recycle=300,
-        echo=False
-    )
+# Inicializar engine
+engine = create_database_engine()
 
 # Criar sessão
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

@@ -87,7 +87,7 @@ const Home = () => {
               mb: 3,
             }}
           >
-            Publicização de Obras HIS
+            Comercialização de Obras HIS
           </Typography>
           
           <Typography
@@ -114,14 +114,14 @@ const Home = () => {
           sx={{ maxWidth: '1000px', mx: 'auto' }}
         >
           {menuItems.map((item, index) => (
-            <Grid 
-              item 
-              xs={12} 
-              sm={6} 
-              md={6} 
-              lg={6}
-              key={index} 
-              sx={{ 
+            <Grid
+              item
+              xs={12}
+              sm={6}
+              md={3}
+              lg={3}
+              key={index}
+              sx={{
                 display: 'flex',
                 justifyContent: 'center',
               }}

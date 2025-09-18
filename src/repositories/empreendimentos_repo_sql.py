@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from ..models import Empreendimento, Construtora
+from ..models import Empreendimento, Construtora, Unidade
 from ..db_sql import get_db
 from typing import List, Dict, Optional
 import logging
@@ -16,7 +16,7 @@ class EmpreendimentosRepositorySQL:
         try:
             with get_db() as db:
                 query = db.query(Empreendimento).join(Construtora, isouter=True)
-                
+
                 if filtros:
                     if filtros.get('somente_publicadas'):
                         query = query.filter(
@@ -27,20 +27,16 @@ class EmpreendimentosRepositorySQL:
                         query = query.filter(Empreendimento.construtora_id == filtros['construtora_id'])
                     if filtros.get('nome'):
                         query = query.filter(Empreendimento.nome.like(f"%{filtros['nome']}%"))
-                    if filtros.get('cidade'):
-                        query = query.filter(Empreendimento.cidade.like(f"%{filtros['cidade']}%"))
-                    if filtros.get('estado'):
-                        query = query.filter(Empreendimento.estado == filtros['estado'])
-                    if filtros.get('status'):
-                        query = query.filter(Empreendimento.status == filtros['status'])
+                    if filtros.get('cep'):
+                        query = query.filter(Empreendimento.cep.like(f"%{filtros['cep']}%"))
                     if filtros.get('data_inicio'):
                         query = query.filter(Empreendimento.created_at >= filtros['data_inicio'])
                     if filtros.get('data_fim'):
                         query = query.filter(Empreendimento.created_at <= filtros['data_fim'])
-                
+
                 empreendimentos = query.order_by(Empreendimento.id.desc()).all()
                 return [emp.to_dict() for emp in empreendimentos]
-                
+
         except Exception as e:
             logger.error(f"Erro ao listar empreendimentos: {str(e)}")
             raise
@@ -93,15 +89,12 @@ class EmpreendimentosRepositorySQL:
                 
                 empreendimento = Empreendimento(
                     nome=dados['nome'],
+                    nome_empresa=dados.get('nome_empresa', dados['nome']),  # Usar nome se nome_empresa não fornecido
                     endereco=dados.get('endereco'),
-                    cidade=dados.get('cidade'),
-                    estado=dados.get('estado'),
-                    cep=dados.get('cep'),
-                    tipo=dados.get('tipo'),
-                    status=dados.get('status', 'Em planejamento'),
-                    valor_total=dados.get('valor_total'),
-                    unidades=dados.get('unidades'),
-                    construtora_id=construtora_id
+                    cep=dados['cep'],
+                    observacao=dados.get('observacao'),
+                    construtora_id=construtora_id,
+                    status_publicacao=dados.get('status_publicacao', 'aguardando')
                 )
                 
                 db.add(empreendimento)
@@ -124,7 +117,7 @@ class EmpreendimentosRepositorySQL:
                     return None
                 
                 # Atualizar campos
-                campos_permitidos = ['nome', 'endereco', 'cidade', 'estado', 'cep', 'tipo', 'status', 'valor_total', 'unidades']
+                campos_permitidos = ['nome', 'nome_empresa', 'endereco', 'cep', 'observacao', 'status_publicacao', 'publicado_em', 'expira_em']
                 
                 for campo in campos_permitidos:
                     if campo in dados:
@@ -189,7 +182,29 @@ class EmpreendimentosRepositorySQL:
         filtros = {'nome': nome}
         return self.listar_empreendimentos(filtros)
     
-    def buscar_por_cidade(self, cidade: str) -> List[Dict]:
-        """Busca empreendimentos por cidade"""
-        filtros = {'cidade': cidade}
+    def buscar_por_cep(self, cep: str) -> List[Dict]:
+        """Busca empreendimentos por CEP"""
+        filtros = {'cep': cep}
         return self.listar_empreendimentos(filtros)
+
+    def criar_unidade(self, dados: Dict) -> Dict:
+        """Cria uma nova unidade"""
+        try:
+            with get_db() as db:
+                unidade = Unidade(
+                    empreendimento_id=dados['empreendimento_id'],
+                    numero_unidade=dados['numero_unidade'],
+                    tamanho_m2=dados.get('tamanho_m2'),
+                    preco_venda=dados.get('preco_venda'),
+                    mecanismo_pagamento=dados.get('mecanismo_pagamento', 'outros')
+                )
+
+                db.add(unidade)
+                db.flush()
+                db.refresh(unidade)
+
+                return unidade.to_dict()
+
+        except Exception as e:
+            logger.error(f"Erro ao criar unidade: {str(e)}")
+            raise

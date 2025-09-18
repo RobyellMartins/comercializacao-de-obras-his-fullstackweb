@@ -22,11 +22,9 @@ def listar_empreendimentos():
         filtros = {
             'construtora_id': request.args.get('construtora_id'),
             'nome': request.args.get('nome'),
-            'cidade': request.args.get('cidade'),
-            'estado': request.args.get('estado'),
-            'status': request.args.get('status'),
-            'dataInicio': request.args.get('dataInicio'),
-            'dataFim': request.args.get('dataFim'),
+            'cep': request.args.get('cep'),
+            'data_inicio': request.args.get('dataInicio'),
+            'data_fim': request.args.get('dataFim'),
             'somente_publicadas': request.args.get('somente_publicadas') == '1'
         }
         
@@ -136,20 +134,69 @@ def publicar_empreendimento(empreendimento_id):
         logger.info(f"Request recebido: {request.method} {request.path}")
         
         repo = EmpreendimentosRepositorySQL()
-        empreendimento = repo.publicar_empreendimento(empreendimento_id)
+        service = EmpreendimentosService(repo)
+        empreendimento = service.publicar_empreendimento(empreendimento_id)
         
         if not empreendimento:
             return jsonify({"message": "Empreendimento não encontrado"}), 404
             
         return jsonify({
+            "message": "Empreendimento publicado com sucesso",
             "id": empreendimento['id'],
             "publicado_em": empreendimento['publicado_em'],
             "expira_em": empreendimento['expira_em'],
+            "status_publicacao": empreendimento['status_publicacao']
         }), 200
         
     except Exception as e:
         logger.error(f"Erro ao publicar empreendimento {empreendimento_id}: {str(e)}")
         return jsonify({'error': 'Erro interno do servidor'}), 500
+
+@empreendimentos_bp.route("/<int:empreendimento_id>/aguardar", methods=["POST"])
+def aguardar_publicacao(empreendimento_id):
+    """Marca empreendimento para aguardar publicação."""
+    try:
+        logger.info(f"Request recebido: {request.method} {request.path}")
+        
+        repo = EmpreendimentosRepositorySQL()
+        service = EmpreendimentosService(repo)
+        empreendimento = service.aguardar_publicacao(empreendimento_id)
+        
+        if not empreendimento:
+            return jsonify({"message": "Empreendimento não encontrado"}), 404
+            
+        return jsonify({
+            "message": "Empreendimento marcado para aguardar publicação",
+            "id": empreendimento['id'],
+            "status_publicacao": empreendimento['status_publicacao']
+        }), 200
+        
+    except Exception as e:
+        logger.error(f"Erro ao marcar empreendimento {empreendimento_id} para aguardar: {str(e)}")
+        return jsonify({'error': 'Erro interno do servidor'}), 500
+
+@empreendimentos_bp.route("/upload/preview", methods=["POST"])
+def preview_planilha():
+    """Preview dos dados da planilha antes da publicação"""
+    try:
+        logger.info(f"Request recebido: {request.method} {request.path}")
+        
+        if 'file' not in request.files:
+            return jsonify({'error': 'Nenhum arquivo enviado'}), 400
+        
+        file = request.files['file']
+        if file.filename == '':
+            return jsonify({'error': 'Nenhum arquivo selecionado'}), 400
+        
+        repo = EmpreendimentosRepositorySQL()
+        service = EmpreendimentosService(repo)
+        resultado = service.preview_planilha(file)
+        
+        return jsonify(resultado), 200
+        
+    except Exception as e:
+        logger.error(f"Erro ao fazer preview da planilha: {str(e)}")
+        return jsonify({'error': 'Erro ao processar planilha para preview'}), 500
 
 @empreendimentos_bp.route("/upload", methods=["POST"])
 def upload_planilha():

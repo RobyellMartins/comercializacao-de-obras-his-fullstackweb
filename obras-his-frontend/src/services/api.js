@@ -9,6 +9,16 @@ const api = axios.create({
   },
 });
 
+// Fix base paths for unidades to include /api prefix
+// This can be handled in the frontend calls or here by intercepting requests
+api.interceptors.request.use((config) => {
+  if (config.url && config.url.startsWith('/unidades')) {
+    config.url = config.url.replace('/unidades', '/api/unidades');
+  }
+  return config;
+});
+
+
 // Interceptor para logging de requests
 api.interceptors.request.use(
   (config) => {

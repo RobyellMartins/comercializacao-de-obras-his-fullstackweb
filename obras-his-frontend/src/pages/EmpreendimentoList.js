@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Container,
   Paper,
@@ -25,6 +25,15 @@ import {
   IconButton,
   Card,
   CardContent,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemIcon,
+  Divider,
 } from '@mui/material';
 import {
   List as ListIcon,
@@ -33,6 +42,13 @@ import {
   FilterList as FilterIcon,
   Business as BusinessIcon,
   Apartment as ApartmentIcon,
+  Close as CloseIcon,
+  Home as HomeIcon,
+  LocationOn as LocationIcon,
+  CalendarToday as CalendarIcon,
+  CheckCircle as CheckCircleIcon,
+  Cancel as CancelIcon,
+  AttachMoney as MoneyIcon,
 } from '@mui/icons-material';
 import BackToHomeButton from '../components/BackToHomeButton';
 import api from '../services/api';
@@ -45,12 +61,17 @@ const EmpreendimentoList = () => {
     nome: '',
     dataInicio: '',
     dataFim: '',
-    publicados: false,
+    publicados: true,
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [unidades, setUnidades] = useState([]);
   const [unidadesCount, setUnidadesCount] = useState(0);
+  const [unidades, setUnidades] = useState([]);
+  
+  // Estados para controlar as modais
+  const [modalAberta, setModalAberta] = useState(false);
+  const [tipoModal, setTipoModal] = useState('');
+  const [dadosModal, setDadosModal] = useState([]);
 
   // Buscar construtoras para filtro
   useEffect(() => {
@@ -69,7 +90,7 @@ const EmpreendimentoList = () => {
   useEffect(() => {
     const fetchUnidades = async () => {
       try {
-        const res = await api.get('/unidades');
+        const res = await api.get('/api/unidades');
         setUnidades(res.data);
         setUnidadesCount(res.data.length);
       } catch (err) {
@@ -80,7 +101,7 @@ const EmpreendimentoList = () => {
   }, []);
 
   // Buscar empreendimentos com filtros
-  const buscarEmpreendimentos = async () => {
+  const buscarEmpreendimentos = useCallback(async () => {
     setLoading(true);
     setError('');
     try {
@@ -100,12 +121,12 @@ const EmpreendimentoList = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filtros]);
 
   // Buscar empreendimentos ao carregar a página
   useEffect(() => {
     buscarEmpreendimentos();
-  }, []);
+  }, [buscarEmpreendimentos]);
 
   // Publicar empreendimento
   const handlePublicar = async (id) => {
@@ -126,8 +147,165 @@ const EmpreendimentoList = () => {
       nome: '',
       dataInicio: '',
       dataFim: '',
-      publicados: false,
+      publicados: true,
     });
+  };
+
+  // Funções para abrir modais
+  const abrirModalEmpreendimentos = () => {
+    setTipoModal('empreendimentos');
+    setDadosModal(empreendimentos);
+    setModalAberta(true);
+  };
+
+  const abrirModalPublicados = () => {
+    const publicados = empreendimentos.filter(e => e.publicado_em);
+    setTipoModal('publicados');
+    setDadosModal(publicados);
+    setModalAberta(true);
+  };
+
+  const abrirModalUnidades = () => {
+    setTipoModal('unidades');
+    setDadosModal(unidades);
+    setModalAberta(true);
+  };
+
+  const fecharModal = () => {
+    setModalAberta(false);
+    setTipoModal('');
+    setDadosModal([]);
+  };
+
+  // Renderizar conteúdo da modal
+  const renderModalContent = () => {
+    switch (tipoModal) {
+      case 'empreendimentos':
+        return (
+          <List>
+            {dadosModal.map((emp, index) => (
+              <React.Fragment key={emp.id}>
+                <ListItem>
+                  <ListItemIcon>
+                    <HomeIcon color="primary" />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={emp.nome}
+                    secondary={
+                      <Box>
+                        <Typography variant="body2" color="text.secondary">
+                          <strong>Empresa:</strong> {emp.nome_empresa || emp.construtora_nome}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          <LocationIcon sx={{ fontSize: 14, mr: 0.5 }} />
+                          {emp.endereco}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          <CalendarIcon sx={{ fontSize: 14, mr: 0.5 }} />
+                          Criado em: {emp.created_at ? new Date(emp.created_at).toLocaleDateString('pt-BR') : 'N/A'}
+                        </Typography>
+                        {emp.publicado_em && (
+                          <Chip
+                            label={`Publicado em ${new Date(emp.publicado_em).toLocaleDateString('pt-BR')}`}
+                            color="success"
+                            size="small"
+                            sx={{ mt: 1 }}
+                          />
+                        )}
+                      </Box>
+                    }
+                  />
+                </ListItem>
+                {index < dadosModal.length - 1 && <Divider />}
+              </React.Fragment>
+            ))}
+          </List>
+        );
+
+      case 'publicados':
+        return (
+          <List>
+            {dadosModal.map((emp, index) => (
+              <React.Fragment key={emp.id}>
+                <ListItem>
+                  <ListItemIcon>
+                    <CheckCircleIcon color="success" />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={emp.nome}
+                    secondary={
+                      <Box>
+                        <Typography variant="body2" color="text.secondary">
+                          <strong>Empresa:</strong> {emp.nome_empresa || emp.construtora_nome}
+                        </Typography>
+                        <Typography variant="body2" color="success.main">
+                          <strong>Publicado em:</strong> {new Date(emp.publicado_em).toLocaleDateString('pt-BR')}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          <strong>Expira em:</strong> {emp.expira_em ? new Date(emp.expira_em).toLocaleDateString('pt-BR') : 'N/A'}
+                        </Typography>
+                      </Box>
+                    }
+                  />
+                </ListItem>
+                {index < dadosModal.length - 1 && <Divider />}
+              </React.Fragment>
+            ))}
+          </List>
+        );
+
+      case 'unidades':
+        return (
+          <List>
+            {dadosModal.map((unidade, index) => (
+              <React.Fragment key={unidade.id}>
+                <ListItem>
+                  <ListItemIcon>
+                    <ApartmentIcon color="info" />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={`Unidade ${unidade.numero_unidade}`}
+                    secondary={
+                      <Box>
+                        <Typography variant="body2" color="text.secondary">
+                          <strong>Empreendimento:</strong> {unidade.empreendimento_nome || `ID: ${unidade.empreendimento_id}`}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          <strong>Tamanho:</strong> {unidade.tamanho_m2}m²
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          <MoneyIcon sx={{ fontSize: 14, mr: 0.5 }} />
+                          <strong>Preço:</strong> R$ {unidade.preco_venda ? unidade.preco_venda.toLocaleString('pt-BR') : 'N/A'}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          <strong>Pagamento:</strong> {unidade.mecanismo_pagamento}
+                        </Typography>
+                      </Box>
+                    }
+                  />
+                </ListItem>
+                {index < dadosModal.length - 1 && <Divider />}
+              </React.Fragment>
+            ))}
+          </List>
+        );
+
+      default:
+        return <Typography>Nenhum dado disponível</Typography>;
+    }
+  };
+
+  const getTituloModal = () => {
+    switch (tipoModal) {
+      case 'empreendimentos':
+        return `Lista de Empreendimentos (${dadosModal.length})`;
+      case 'publicados':
+        return `Empreendimentos Publicados (${dadosModal.length})`;
+      case 'unidades':
+        return `Lista de Unidades (${dadosModal.length})`;
+      default:
+        return 'Detalhes';
+    }
   };
 
   return (
@@ -138,14 +316,26 @@ const EmpreendimentoList = () => {
         <Box display="flex" alignItems="center" mb={3}>
           <ApartmentIcon sx={{ mr: 2, fontSize: 32, color: 'primary.main' }} />
           <Typography variant="h4" component="h1">
-            Lista de Empreendimentos
+            Lista de Empreendimentos - Comercialização de Obras HIS
           </Typography>
         </Box>
 
-        {/* Dashboard Cards */}
+        {/* Dashboard Cards - Agora clicáveis */}
         <Grid container spacing={3} sx={{ mb: 4 }}>
           <Grid item xs={12} md={4}>
-            <Card>
+            <Card 
+              sx={{ 
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                '&:hover': {
+                  transform: 'translateY(-4px)',
+                  boxShadow: 4,
+                  backgroundColor: 'primary.light',
+                  color: 'white'
+                }
+              }}
+              onClick={abrirModalEmpreendimentos}
+            >
               <CardContent>
                 <Box display="flex" alignItems="center">
                   <BusinessIcon sx={{ mr: 2, color: 'primary.main' }} />
@@ -154,13 +344,28 @@ const EmpreendimentoList = () => {
                     <Typography variant="body2" color="text.secondary">
                       Total de Empreendimentos
                     </Typography>
+                    <Typography variant="caption" color="primary.main" sx={{ fontStyle: 'italic' }}>
+                      Clique para ver detalhes
+                    </Typography>
                   </Box>
                 </Box>
               </CardContent>
             </Card>
           </Grid>
           <Grid item xs={12} md={4}>
-            <Card>
+            <Card 
+              sx={{ 
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                '&:hover': {
+                  transform: 'translateY(-4px)',
+                  boxShadow: 4,
+                  backgroundColor: 'success.light',
+                  color: 'white'
+                }
+              }}
+              onClick={abrirModalPublicados}
+            >
               <CardContent>
                 <Box display="flex" alignItems="center">
                   <PublishIcon sx={{ mr: 2, color: 'success.main' }} />
@@ -171,13 +376,28 @@ const EmpreendimentoList = () => {
                     <Typography variant="body2" color="text.secondary">
                       Empreendimentos Publicados
                     </Typography>
+                    <Typography variant="caption" color="success.main" sx={{ fontStyle: 'italic' }}>
+                      Clique para ver detalhes
+                    </Typography>
                   </Box>
                 </Box>
               </CardContent>
             </Card>
           </Grid>
           <Grid item xs={12} md={4}>
-            <Card>
+            <Card 
+              sx={{ 
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                '&:hover': {
+                  transform: 'translateY(-4px)',
+                  boxShadow: 4,
+                  backgroundColor: 'info.light',
+                  color: 'white'
+                }
+              }}
+              onClick={abrirModalUnidades}
+            >
               <CardContent>
                 <Box display="flex" alignItems="center">
                   <ListIcon sx={{ mr: 2, color: 'info.main' }} />
@@ -186,12 +406,55 @@ const EmpreendimentoList = () => {
                     <Typography variant="body2" color="text.secondary">
                       Total de Unidades
                     </Typography>
+                    <Typography variant="caption" color="info.main" sx={{ fontStyle: 'italic' }}>
+                      Clique para ver detalhes
+                    </Typography>
                   </Box>
                 </Box>
               </CardContent>
             </Card>
           </Grid>
         </Grid>
+
+        {/* Modal para exibir detalhes */}
+        <Dialog 
+          open={modalAberta} 
+          onClose={fecharModal}
+          maxWidth="md"
+          fullWidth
+          PaperProps={{
+            sx: { minHeight: '400px' }
+          }}
+        >
+          <DialogTitle sx={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center',
+            backgroundColor: 'primary.main',
+            color: 'white'
+          }}>
+            <Typography variant="h6">{getTituloModal()}</Typography>
+            <IconButton onClick={fecharModal} sx={{ color: 'white' }}>
+              <CloseIcon />
+            </IconButton>
+          </DialogTitle>
+          <DialogContent sx={{ p: 0 }}>
+            {dadosModal.length === 0 ? (
+              <Box sx={{ p: 3, textAlign: 'center' }}>
+                <Typography variant="body1" color="text.secondary">
+                  Nenhum dado disponível para exibir.
+                </Typography>
+              </Box>
+            ) : (
+              renderModalContent()
+            )}
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={fecharModal} variant="contained">
+              Fechar
+            </Button>
+          </DialogActions>
+        </Dialog>
 
         {/* Filtros */}
         <Paper elevation={1} sx={{ p: 3, mb: 3, backgroundColor: 'grey.50' }}>
@@ -203,16 +466,21 @@ const EmpreendimentoList = () => {
           <Grid container spacing={2} alignItems="center">
             <Grid item xs={12} md={3}>
               <FormControl fullWidth size="small">
-                <InputLabel>Construtora</InputLabel>
+                <InputLabel id="construtora-filter-label">Filtrar por Construtora</InputLabel>
                 <Select
+                  labelId="construtora-filter-label"
                   value={filtros.construtoraId}
-                  label="Construtora"
+                  label="Filtrar por Construtora"
                   onChange={(e) => setFiltros({ ...filtros, construtoraId: e.target.value })}
+                  displayEmpty
                 >
-                  <MenuItem value="">Todas</MenuItem>
+                  <MenuItem value="">
+                    <em>Todas as Construtoras</em>
+                  </MenuItem>
                   {construtoras.map((c) => (
                     <MenuItem key={c.id} value={c.id}>
                       {c.nome}
+                      {c.cnpj && ` - CNPJ: ${c.cnpj}`}
                     </MenuItem>
                   ))}
                 </Select>

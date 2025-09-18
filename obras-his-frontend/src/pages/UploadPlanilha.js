@@ -55,7 +55,7 @@ const UploadPlanilha = () => {
     formData.append('file', file);
 
     try {
-      const response = await api.post('/upload', formData, {
+      const response = await api.post('/empreendimentos/upload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -90,11 +90,11 @@ const UploadPlanilha = () => {
       
       <Paper elevation={3} sx={{ p: 4 }}>
         <Typography variant="h4" component="h1" gutterBottom align="center">
-          Upload de Planilha
+          Upload de Planilha - Comercialização de Obras HIS
         </Typography>
         
         <Typography variant="body1" color="text.secondary" align="center" sx={{ mb: 4 }}>
-          Faça upload de planilhas Excel com dados dos empreendimentos
+          Faça upload de planilhas Excel com dados dos empreendimentos e unidades
         </Typography>
 
         {!uploadResult && (
@@ -216,18 +216,18 @@ const UploadPlanilha = () => {
               <ListItem>
                 <ListItemText
                   primary="Erros encontrados"
-                  secondary={uploadResult.erros?.length || 0}
+                  secondary={uploadResult.erros || 0}
                 />
               </ListItem>
             </List>
 
-            {uploadResult.erros && uploadResult.erros.length > 0 && (
+            {uploadResult.detalhes_erros && uploadResult.detalhes_erros.length > 0 && (
               <Box sx={{ mt: 2 }}>
                 <Typography variant="subtitle2" color="error" gutterBottom>
-                  Erros encontrados:
+                  Detalhes dos erros encontrados:
                 </Typography>
                 <List dense>
-                  {uploadResult.erros.map((erro, index) => (
+                  {uploadResult.detalhes_erros.map((erro, index) => (
                     <ListItem key={index}>
                       <ListItemText
                         primary={erro}
@@ -235,6 +235,50 @@ const UploadPlanilha = () => {
                       />
                     </ListItem>
                   ))}
+                </List>
+              </Box>
+            )}
+
+            {uploadResult.empreendimentos && uploadResult.empreendimentos.length > 0 && (
+              <Box sx={{ mt: 2 }}>
+                <Typography variant="subtitle2" color="success.main" gutterBottom>
+                  Empreendimentos criados:
+                </Typography>
+                <List dense>
+                  {uploadResult.empreendimentos.map((emp, index) => (
+                    <ListItem key={index}>
+                      <ListItemText
+                        primary={emp.nome}
+                        secondary={`Empresa: ${emp.nome_empresa} | CEP: ${emp.cep}`}
+                      />
+                    </ListItem>
+                  ))}
+                </List>
+              </Box>
+            )}
+
+            {uploadResult.unidades && uploadResult.unidades.length > 0 && (
+              <Box sx={{ mt: 2 }}>
+                <Typography variant="subtitle2" color="info.main" gutterBottom>
+                  Unidades criadas:
+                </Typography>
+                <List dense>
+                  {uploadResult.unidades.slice(0, 10).map((unidade, index) => (
+                    <ListItem key={index}>
+                      <ListItemText
+                        primary={`Unidade ${unidade.numero_unidade}`}
+                        secondary={`${unidade.tamanho_m2}m² | R$ ${unidade.preco_venda?.toLocaleString('pt-BR')} | ${unidade.mecanismo_pagamento}`}
+                      />
+                    </ListItem>
+                  ))}
+                  {uploadResult.unidades.length > 10 && (
+                    <ListItem>
+                      <ListItemText
+                        primary={`... e mais ${uploadResult.unidades.length - 10} unidades`}
+                        sx={{ fontStyle: 'italic', color: 'text.secondary' }}
+                      />
+                    </ListItem>
+                  )}
                 </List>
               </Box>
             )}

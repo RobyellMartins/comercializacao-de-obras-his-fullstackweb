@@ -19,18 +19,12 @@ def listar_unidades():
         logger.info(f"Request recebido: {request.method} {request.path}")
         
         empreendimento_id = request.args.get('empreendimento_id')
-        status = request.args.get('status')
-        tipo = request.args.get('tipo')
-        
+
         with get_db() as db:
             query = db.query(Unidade).join(Empreendimento, isouter=True)
-            
+
             if empreendimento_id:
                 query = query.filter(Unidade.empreendimento_id == empreendimento_id)
-            if status:
-                query = query.filter(Unidade.status == status)
-            if tipo:
-                query = query.filter(Unidade.tipo == tipo)
             
             unidades = query.order_by(Unidade.numero_unidade).all()
             return jsonify([unidade.to_dict() for unidade in unidades]), 200
@@ -162,37 +156,7 @@ def deletar_unidade(unidade_id):
         logger.error(f"Erro ao deletar unidade {unidade_id}: {str(e)}")
         return jsonify({'error': 'Erro interno do servidor'}), 500
 
-@unidades_bp.route("/<int:unidade_id>/status", methods=["PUT"])
-def atualizar_status_unidade(unidade_id):
-    """Atualiza o status de uma unidade"""
-    try:
-        logger.info(f"Request recebido: {request.method} {request.path}")
-        
-        json_data = request.get_json()
-        if not json_data or 'status' not in json_data:
-            return jsonify(error="Status é obrigatório"), 400
-        
-        status = json_data['status']
-        status_validos = ['Disponível', 'Reservada', 'Vendida', 'Indisponível']
-        
-        if status not in status_validos:
-            return jsonify(error=f"Status deve ser um dos seguintes: {', '.join(status_validos)}"), 400
-        
-        with get_db() as db:
-            unidade = db.query(Unidade).filter(Unidade.id == unidade_id).first()
-            
-            if not unidade:
-                return jsonify({"message": "Unidade não encontrada"}), 404
-            
-            unidade.status = status
-            db.flush()
-            db.refresh(unidade)
-            
-            return jsonify(unidade.to_dict()), 200
-            
-    except Exception as e:
-        logger.error(f"Erro ao atualizar status da unidade {unidade_id}: {str(e)}")
-        return jsonify({'error': 'Erro interno do servidor'}), 500
+
 
 @unidades_bp.route("/empreendimento/<int:empreendimento_id>", methods=["GET"])
 def listar_unidades_por_empreendimento(empreendimento_id):

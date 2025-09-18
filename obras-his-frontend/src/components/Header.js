@@ -17,7 +17,7 @@ const Header = () => {
               letterSpacing: '-0.025em'
             }}
           >
-            Sistema de Obras HIS
+            Comercialização de Obras HIS
           </Typography>
         </Box>
       </Toolbar>

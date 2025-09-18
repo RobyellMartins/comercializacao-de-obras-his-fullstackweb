@@ -3,6 +3,7 @@ from flask_cors import CORS
 from flasgger import Swagger
 import logging
 import os
+from logging.handlers import RotatingFileHandler
 
 from src.config import *
 from src.db_sql import init_db, create_initial_data
@@ -15,6 +16,13 @@ def create_app():
         level=getattr(logging, LOG_LEVEL),
         format=LOG_FORMAT
     )
+    # Configurar logging para arquivo
+    if not os.path.exists('logs'):
+        os.mkdir('logs')
+    file_handler = RotatingFileHandler('logs/flask.log', maxBytes=10240, backupCount=10)
+    file_handler.setFormatter(logging.Formatter(LOG_FORMAT))
+    file_handler.setLevel(getattr(logging, LOG_LEVEL))
+    app.logger.addHandler(file_handler)
     
     # Configurações da aplicação
     app.config['SECRET_KEY'] = SECRET_KEY
@@ -52,12 +60,10 @@ def create_app():
     # Registrar blueprints
     from src.blueprints.empreendimentos import empreendimentos_bp
     from src.blueprints.construtoras import construtoras_bp
-    from src.blueprints.obras import obras_bp
     from src.blueprints.unidades import unidades_bp
-    
+
     app.register_blueprint(empreendimentos_bp)
     app.register_blueprint(construtoras_bp)
-    app.register_blueprint(obras_bp)
     app.register_blueprint(unidades_bp)
     
     # Rotas principais
@@ -70,7 +76,6 @@ def create_app():
             "endpoints": {
                 "empreendimentos": "/empreendimentos",
                 "construtoras": "/api/construtoras",
-                "obras": "/api/obras",
                 "unidades": "/api/unidades"
             }
         })
