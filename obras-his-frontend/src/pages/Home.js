@@ -248,34 +248,7 @@ const Home = () => {
             proporcionando transparência e eficiência na gestão pública.
           </Typography>
 
-          <Box sx={{ mt: 4 }}>
-            <Grid container spacing={3} justifyContent="center">
-              <Grid item xs={12} sm={4}>
-                <Typography variant="h6" sx={{ color: theme.palette.primary.main, fontWeight: 600, mb: 1 }}>
-                  Gestão Completa
-                </Typography>
-                <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
-                  Controle total dos empreendimentos e suas informações
-                </Typography>
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <Typography variant="h6" sx={{ color: theme.palette.secondary.main, fontWeight: 600, mb: 1 }}>
-                  Importação Fácil
-                </Typography>
-                <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
-                  Upload de planilhas para cadastro em lote
-                </Typography>
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <Typography variant="h6" sx={{ color: theme.palette.success.main, fontWeight: 600, mb: 1 }}>
-                  Interface Moderna
-                </Typography>
-                <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
-                  Design responsivo e intuitivo para todos os usuários
-                </Typography>
-              </Grid>
-            </Grid>
-          </Box>
+
         </Paper>
       </Container>
     </Box>
